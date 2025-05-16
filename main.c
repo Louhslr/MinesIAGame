@@ -11,7 +11,7 @@
 #define NB_COLS 25
 #define NB_ROWS 20
 #define CELL_SIZE 40
-#define MAX_MATERIALS 7
+
 
 Train train;
 Material materials[MAX_MATERIALS];
