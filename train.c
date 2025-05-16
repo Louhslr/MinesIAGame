@@ -15,7 +15,7 @@ void draw_train(SDL_Renderer* renderer, Train* train, int cell_size) {
     int x = train->col * cell_size;
     int y = train->row * cell_size;
 
-    SDL_Rect body = { x, y, cell_size, cell_size };
+    SDL_Rect body = { x + cell_size / 3, y + cell_size / 4, cell_size / 2, cell_size / 2 };
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     SDL_RenderFillRect(renderer, &body);
 
