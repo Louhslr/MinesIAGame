@@ -46,3 +46,22 @@ void draw_materials(SDL_Renderer* renderer, Material* materials, int count, int 
         }
     }
 }
+
+void draw_inventory(SDL_Renderer* renderer, Inventory* inv, int screen_width, int screen_height) {
+    int base_x = 10;
+    int base_y = screen_height - 60;
+
+    SDL_Rect rect_cuivre = { base_x, base_y, 20, 20 };
+    SDL_SetRenderDrawColor(renderer, 255, 140, 0, 255); // Couleur cuivre
+    SDL_RenderFillRect(renderer, &rect_cuivre);
+
+    SDL_Rect rect_argent = { base_x + 30, base_y, 20, 20 };
+    SDL_SetRenderDrawColor(renderer, 192, 192, 192, 255); // Couleur argent
+    SDL_RenderFillRect(renderer, &rect_argent);
+
+    SDL_Rect rect_diamant = { base_x + 60, base_y, 20, 20 };
+    SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255); // Couleur diamant
+    SDL_RenderFillRect(renderer, &rect_diamant);
+
+    // Pour l'instant, pas d'affichage numérique, juste les icônes des matériaux.
+}

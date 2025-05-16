@@ -16,6 +16,8 @@
 Train train;
 Material materials[MAX_MATERIALS];
 Terrain terrains[NB_ROWS][NB_COLS];
+Inventory inventory = {0, 0, 0};
+
 
 void handle_click(int x, int y) {
     int col = x / CELL_SIZE;
@@ -55,6 +57,7 @@ int main(int argc, char* argv[]) {
         draw_terrain(renderer, terrains, CELL_SIZE);
         draw_materials(renderer, materials, MAX_MATERIALS, CELL_SIZE);
         draw_train(renderer, &train, CELL_SIZE);
+        draw_inventory(renderer, &inventory, SCREEN_WIDTH, SCREEN_HEIGHT);
 
         SDL_RenderPresent(renderer);
         SDL_Delay(50);  // Vitesse du déplacement visible
