@@ -9,7 +9,7 @@ void init_materials(Material* materials, Terrain terrains[NB_ROWS][NB_COLS]) {
         if (terrains[r][c] == HERBE) {
             materials[placed].row = r;
             materials[placed].col = c;
-            materials[placed].type = rand() % 3; // 0 = CUIVRE, 1 = ARGENT, 2 = DIAMANT
+            materials[placed].type = rand() % 3;  // 0: cuivre, 1: argent, 2: diamant
             placed++;
         }
     }
@@ -17,51 +17,35 @@ void init_materials(Material* materials, Terrain terrains[NB_ROWS][NB_COLS]) {
 
 void draw_materials(SDL_Renderer* renderer, Material* materials, int count, int cell_size) {
     for (int i = 0; i < count; ++i) {
-        int x = materials[i].col * cell_size + cell_size / 2;
-        int y = materials[i].row * cell_size + cell_size / 2;
-
+        SDL_Rect rect = { materials[i].col * cell_size + cell_size / 4, materials[i].row * cell_size + cell_size / 4, cell_size / 2, cell_size / 2 };
         switch (materials[i].type) {
-            case CUIVRE: // Rond orange
-                SDL_SetRenderDrawColor(renderer, 255, 140, 0, 255);
-                SDL_Rect rond = { x - 5, y - 5, 10, 10 };
-                SDL_RenderFillRect(renderer, &rond);
-                break;
-
-            case ARGENT: // Carré gris clair
-                SDL_SetRenderDrawColor(renderer, 192, 192, 192, 255);
-                SDL_Rect carre = { x - 5, y - 5, 10, 10 };
-                SDL_RenderFillRect(renderer, &carre);
-                break;
-
-            case DIAMANT: // Triangle bleu clair
-                SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
-                SDL_Point triangle[4] = {
-                        { x, y - 5 },
-                        { x - 5, y + 5 },
-                        { x + 5, y + 5 },
-                        { x, y - 5 }
-                };
-                SDL_RenderDrawLines(renderer, triangle, 4);
-                break;
+            case 0: SDL_SetRenderDrawColor(renderer, 255, 165, 0, 255); break;  // Cuivre: Orange
+            case 1: SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255); break; // Argent: Gris clair
+            case 2: SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255); break;   // Diamant: Cyan
         }
+        SDL_RenderFillRect(renderer, &rect);
     }
 }
 
 void draw_inventory(SDL_Renderer* renderer, Inventory* inv, int screen_width, int screen_height) {
-    int base_x = 10;
-    int base_y = screen_height - 60;
+    int start_x = 10;
+    int start_y = screen_height - 40;
+    int size = 20;
 
-    SDL_Rect rect_cuivre = { base_x, base_y, 20, 20 };
-    SDL_SetRenderDrawColor(renderer, 255, 140, 0, 255); // Couleur cuivre
+    // Cuivre
+    SDL_SetRenderDrawColor(renderer, 255, 165, 0, 255);
+    SDL_Rect rect_cuivre = { start_x, start_y, size, size };
     SDL_RenderFillRect(renderer, &rect_cuivre);
 
-    SDL_Rect rect_argent = { base_x + 30, base_y, 20, 20 };
-    SDL_SetRenderDrawColor(renderer, 192, 192, 192, 255); // Couleur argent
+    // Argent
+    SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
+    SDL_Rect rect_argent = { start_x + 30, start_y, size, size };
     SDL_RenderFillRect(renderer, &rect_argent);
 
-    SDL_Rect rect_diamant = { base_x + 60, base_y, 20, 20 };
-    SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255); // Couleur diamant
+    // Diamant
+    SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
+    SDL_Rect rect_diamant = { start_x + 60, start_y, size, size };
     SDL_RenderFillRect(renderer, &rect_diamant);
 
-    // Pour l'instant, pas d'affichage numérique, juste les icônes des matériaux.
+    // Tu peux ajouter les compteurs avec SDL_ttf si nécessaire plus tard.
 }

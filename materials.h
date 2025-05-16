@@ -6,12 +6,9 @@
 
 #define MAX_MATERIALS 15
 
-typedef enum { CUIVRE, ARGENT, DIAMANT } MaterialType;
-
 typedef struct {
-    int row;
-    int col;
-    MaterialType type;
+    int row, col;
+    int type; // 0 = cuivre, 1 = argent, 2 = diamant
 } Material;
 
 typedef struct {
