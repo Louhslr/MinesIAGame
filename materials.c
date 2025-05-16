@@ -1,5 +1,6 @@
 #include "materials.h"
 #include <stdlib.h>
+#include <SDL_ttf.h>
 
 void init_materials(Material* materials, Terrain terrains[NB_ROWS][NB_COLS]) {
     int placed = 0;
@@ -27,25 +28,50 @@ void draw_materials(SDL_Renderer* renderer, Material* materials, int count, int 
     }
 }
 
+// Ajoute cette fonction dans materials.c
 void draw_inventory(SDL_Renderer* renderer, Inventory* inv, int screen_width, int screen_height) {
-    int start_x = 10;
-    int start_y = screen_height - 40;
-    int size = 20;
+    TTF_Font* font = TTF_OpenFont("arial.ttf", 24);  // Assure-toi que le fichier de police existe dans le dossier
+    if (!font) return;
 
-    // Cuivre
-    SDL_SetRenderDrawColor(renderer, 255, 165, 0, 255);
-    SDL_Rect rect_cuivre = { start_x, start_y, size, size };
-    SDL_RenderFillRect(renderer, &rect_cuivre);
+    SDL_Color white = {255, 255, 255, 255};
+    char buffer[50];
 
-    // Argent
-    SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
-    SDL_Rect rect_argent = { start_x + 30, start_y, size, size };
-    SDL_RenderFillRect(renderer, &rect_argent);
+    // Position de départ en bas à gauche
+    int x = 10;
+    int y = screen_height - 90;
 
-    // Diamant
-    SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
-    SDL_Rect rect_diamant = { start_x + 60, start_y, size, size };
-    SDL_RenderFillRect(renderer, &rect_diamant);
+    // Affichage du Cuivre
+    sprintf(buffer, "Cuivre: %d", inv->cuivre);
+    SDL_Surface* surface = TTF_RenderText_Solid(font, buffer, white);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_Rect rect = {x, y, surface->w, surface->h};
+    SDL_RenderCopy(renderer, texture, NULL, &rect);
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
 
-    // Tu peux ajouter les compteurs avec SDL_ttf si nécessaire plus tard.
+    // Affichage de l'Argent
+    y += 30;
+    sprintf(buffer, "Argent: %d", inv->argent);
+    surface = TTF_RenderText_Solid(font, buffer, white);
+    texture = SDL_CreateTextureFromSurface(renderer, surface);
+    rect.y = y;
+    rect.w = surface->w;
+    rect.h = surface->h;
+    SDL_RenderCopy(renderer, texture, NULL, &rect);
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
+
+    // Affichage du Diamant
+    y += 30;
+    sprintf(buffer, "Diamant: %d", inv->diamant);
+    surface = TTF_RenderText_Solid(font, buffer, white);
+    texture = SDL_CreateTextureFromSurface(renderer, surface);
+    rect.y = y;
+    rect.w = surface->w;
+    rect.h = surface->h;
+    SDL_RenderCopy(renderer, texture, NULL, &rect);
+
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
+    TTF_CloseFont(font);
 }
