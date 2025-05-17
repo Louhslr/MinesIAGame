@@ -42,7 +42,8 @@ void compute_dijkstra(Train* train, int target_col, int target_row, Terrain terr
             int new_row = cur_row + dirs[d][0];
             int new_col = cur_col + dirs[d][1];
 
-            if (is_valid(new_row, new_col) && !visited[new_row][new_col] && terrains[new_row][new_col] == HERBE) {
+            if (is_valid(new_row, new_col) && !visited[new_row][new_col] &&
+                (terrains[new_row][new_col] == HERBE || terrains[new_row][new_col] == ARBRE)) {
                 if (dist[cur_row][cur_col] + 1 < dist[new_row][new_col]) {
                     dist[new_row][new_col] = dist[cur_row][cur_col] + 1;
                 }

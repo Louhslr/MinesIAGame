@@ -1,6 +1,10 @@
 #include "terrain.h"
 #include <SDL.h>
 #include <stdlib.h>
+#include "materials.h"  // Pour le type Inventory
+#include <SDL_ttf.h>    // Pour les fonctions TTF
+
+
 
 void generate_terrain(Terrain terrains[NB_ROWS][NB_COLS]) {
     for (int row = 0; row < NB_ROWS; row++) {
@@ -46,9 +50,24 @@ void draw_tree(SDL_Renderer* renderer, int x, int y, int cell_size) {
     SDL_RenderDrawLines(renderer, upper_triangle, 4);
 }
 
-void draw_terrain(SDL_Renderer* renderer, Terrain terrains[NB_ROWS][NB_COLS], int cell_size) {
+void draw_terrain(SDL_Renderer* renderer, Terrain terrains[NB_ROWS][NB_COLS], int cell_size, Inventory* inventory) {
+    // 1. Dessiner la zone noire pour les compteurs (7 dernières colonnes des 2 premières lignes)
+    for (int row = 0; row < 11; ++row) {
+        for (int col = NB_COLS - 5; col < NB_COLS; ++col) {
+            SDL_Rect rect = { col * cell_size, row * cell_size, cell_size, cell_size };
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Noir
+            SDL_RenderFillRect(renderer, &rect);
+
+            terrains[row][col] = OBSTACLE_NOIR;
+        }
+    }
+
+    // 2. Afficher le reste du terrain normalement
     for (int row = 0; row < NB_ROWS; row++) {
         for (int col = 0; col < NB_COLS; col++) {
+            // Ne pas redessiner la zone noire
+            if (row < 11 && col >= NB_COLS - 5) continue;
+
             SDL_Rect rect = { col * cell_size, row * cell_size, cell_size, cell_size };
 
             switch (terrains[row][col]) {
@@ -62,10 +81,10 @@ void draw_terrain(SDL_Renderer* renderer, Terrain terrains[NB_ROWS][NB_COLS], in
             SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);
             SDL_RenderDrawRect(renderer, &rect);
 
-            // Dessiner l'arbre si c'est un obstacle de type ARBRE
             if (terrains[row][col] == ARBRE) {
                 draw_tree(renderer, col * cell_size, row * cell_size, cell_size);
             }
         }
     }
+
 }

@@ -73,16 +73,10 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    printf("Inventaire en cours - Cuivre: %d, Argent: %d, Diamant: %d\r",
-           inventory.cuivre, inventory.argent, inventory.diamant);
-    fflush(stdout);
-
-
     SDL_Init(SDL_INIT_VIDEO);
-    TTF_Font* font = TTF_OpenFont("ARIALI 1.TTF", 24); // Assure-toi que arial.ttf est dans ton dossier
+    TTF_Font* font = TTF_OpenFont("ARIALI 1.TTF", 24);
     if (!font) {
         printf("Erreur chargement police : %s\n", TTF_GetError());
-        return -1;
     }
     SDL_Color white = {255, 255, 255, 255};
     SDL_Window* window = SDL_CreateWindow("Graphe & IA", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
@@ -108,15 +102,10 @@ int main(int argc, char* argv[]) {
         SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
         SDL_RenderClear(renderer);
 
-        draw_terrain(renderer, terrains, CELL_SIZE);
+        draw_terrain(renderer, terrains, CELL_SIZE, &inventory);
         draw_materials(renderer, materials, MAX_MATERIALS, CELL_SIZE);
         draw_train(renderer, &train, CELL_SIZE);
         draw_inventory(renderer, &inventory, SCREEN_WIDTH, SCREEN_HEIGHT);
-        char inventory_text[100];
-        sprintf(inventory_text, "Cuivre: %d  Argent: %d  Diamant: %d",
-                inventory.cuivre, inventory.argent, inventory.diamant);
-
-        render_text(renderer, font, inventory_text, 10, SCREEN_HEIGHT - 30); // En bas de l'écran
 
 
         SDL_RenderPresent(renderer);

@@ -1,4 +1,5 @@
 #include "train.h"
+#include "materials.h"  // Si Inventory est défini ici
 #include <SDL.h>
 
 void init_train(Train* train, Terrain terrains[NB_ROWS][NB_COLS]) {

@@ -1,4 +1,5 @@
 #include "materials.h"
+#include "terrain.h"
 #include <stdlib.h>
 #include <SDL_ttf.h>
 
@@ -30,17 +31,14 @@ void draw_materials(SDL_Renderer* renderer, Material* materials, int count, int 
 
 // Ajoute cette fonction dans materials.c
 void draw_inventory(SDL_Renderer* renderer, Inventory* inv, int screen_width, int screen_height) {
-    TTF_Font* font = TTF_OpenFont("arial.ttf", 24);  // Assure-toi que le fichier de police existe dans le dossier
+    TTF_Font* font = TTF_OpenFont("C:/Windows/Fonts/arial.ttf", 24);
     if (!font) return;
 
     SDL_Color white = {255, 255, 255, 255};
     char buffer[50];
+    int x = screen_width - 190;  // Ajuste si nécessaire
+    int y = 10;
 
-    // Position de départ en bas à gauche
-    int x = 10;
-    int y = screen_height - 90;
-
-    // Affichage du Cuivre
     sprintf(buffer, "Cuivre: %d", inv->cuivre);
     SDL_Surface* surface = TTF_RenderText_Solid(font, buffer, white);
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -49,26 +47,20 @@ void draw_inventory(SDL_Renderer* renderer, Inventory* inv, int screen_width, in
     SDL_FreeSurface(surface);
     SDL_DestroyTexture(texture);
 
-    // Affichage de l'Argent
     y += 30;
     sprintf(buffer, "Argent: %d", inv->argent);
     surface = TTF_RenderText_Solid(font, buffer, white);
     texture = SDL_CreateTextureFromSurface(renderer, surface);
     rect.y = y;
-    rect.w = surface->w;
-    rect.h = surface->h;
     SDL_RenderCopy(renderer, texture, NULL, &rect);
     SDL_FreeSurface(surface);
     SDL_DestroyTexture(texture);
 
-    // Affichage du Diamant
     y += 30;
     sprintf(buffer, "Diamant: %d", inv->diamant);
     surface = TTF_RenderText_Solid(font, buffer, white);
     texture = SDL_CreateTextureFromSurface(renderer, surface);
     rect.y = y;
-    rect.w = surface->w;
-    rect.h = surface->h;
     SDL_RenderCopy(renderer, texture, NULL, &rect);
 
     SDL_FreeSurface(surface);

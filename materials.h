@@ -2,13 +2,11 @@
 #define MATERIALS_H
 
 #include <SDL.h>
-#include "terrain.h"
 
 #define MAX_MATERIALS 15
 
 typedef struct {
-    int row, col;
-    int type; // 0 = cuivre, 1 = argent, 2 = diamant
+    int row, col, type;
 } Material;
 
 typedef struct {
@@ -17,9 +15,11 @@ typedef struct {
     int diamant;
 } Inventory;
 
-void init_materials(Material* materials, Terrain terrains[NB_ROWS][NB_COLS]);
+typedef enum { HERBE, EAU, PIERRE, ARBRE, OBSTACLE_NOIR } Terrain;
+
+void init_materials(Material* materials, Terrain terrains[20][25]);
 void draw_materials(SDL_Renderer* renderer, Material* materials, int count, int cell_size);
 void draw_inventory(SDL_Renderer* renderer, Inventory* inv, int screen_width, int screen_height);
-void spawn_material(Material materials[], Terrain terrains[NB_ROWS][NB_COLS]);
+void spawn_material(Material materials[], Terrain terrains[20][25]);
 
 #endif
