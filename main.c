@@ -13,6 +13,7 @@
 #define NB_ROWS 20
 #define CELL_SIZE 40
 
+
 Train train;
 Material materials[MAX_MATERIALS];
 Terrain terrains[NB_ROWS][NB_COLS];
@@ -32,21 +33,37 @@ void handle_click(int x, int y) {
 
 void check_material_collection() {
     for (int i = 0; i < MAX_MATERIALS; ++i) {
-        if (train.col == materials[i].col && train.row == materials[i].row) {
-            // Incrémente l'inventaire en fonction du type de matériau
+        if (materials[i].col != -1 && materials[i].row != -1 &&
+            train.col == materials[i].col && train.row == materials[i].row) {
+
+            // Mise à jour du compteur par type
             switch (materials[i].type) {
                 case 0: inventory.cuivre++; break;
                 case 1: inventory.argent++; break;
                 case 2: inventory.diamant++; break;
             }
-            // Supprime le matériau de la carte
+
+            // Supprimer le matériau collecté et en faire apparaître un nouveau
             materials[i].col = -1;
             materials[i].row = -1;
-
-            // Génère un nouveau matériau pour maintenir le total à 15
             spawn_material(materials, terrains);
+
+            // Affichage de l'inventaire à chaque collecte
+            printf("Inventaire - Cuivre: %d, Argent: %d, Diamant: %d\n",
+                   inventory.cuivre, inventory.argent, inventory.diamant);
         }
     }
+}
+
+void render_text(SDL_Renderer* renderer, TTF_Font* font, const char* text, int x, int y) {
+    SDL_Color color = {255, 255, 255, 255}; // Blanc
+    SDL_Surface* surface = TTF_RenderText_Solid(font, text, color);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_Rect dest = {x, y, surface->w, surface->h};
+
+    SDL_RenderCopy(renderer, texture, NULL, &dest);
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
 }
 
 
@@ -56,8 +73,18 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
+    printf("Inventaire en cours - Cuivre: %d, Argent: %d, Diamant: %d\r",
+           inventory.cuivre, inventory.argent, inventory.diamant);
+    fflush(stdout);
+
 
     SDL_Init(SDL_INIT_VIDEO);
+    TTF_Font* font = TTF_OpenFont("ARIALI 1.TTF", 24); // Assure-toi que arial.ttf est dans ton dossier
+    if (!font) {
+        printf("Erreur chargement police : %s\n", TTF_GetError());
+        return -1;
+    }
+    SDL_Color white = {255, 255, 255, 255};
     SDL_Window* window = SDL_CreateWindow("Graphe & IA", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
 
@@ -85,6 +112,12 @@ int main(int argc, char* argv[]) {
         draw_materials(renderer, materials, MAX_MATERIALS, CELL_SIZE);
         draw_train(renderer, &train, CELL_SIZE);
         draw_inventory(renderer, &inventory, SCREEN_WIDTH, SCREEN_HEIGHT);
+        char inventory_text[100];
+        sprintf(inventory_text, "Cuivre: %d  Argent: %d  Diamant: %d",
+                inventory.cuivre, inventory.argent, inventory.diamant);
+
+        render_text(renderer, font, inventory_text, 10, SCREEN_HEIGHT - 30); // En bas de l'écran
+
 
         SDL_RenderPresent(renderer);
         SDL_Delay(50);
@@ -92,6 +125,7 @@ int main(int argc, char* argv[]) {
 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    TTF_CloseFont(font);
     TTF_Quit();
     SDL_Quit();
     return 0;
