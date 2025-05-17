@@ -16,15 +16,30 @@ int dependencies[4][4] = {
         {1, 1, 1, 0}   // Avancée dépend de Cuivre, Argent et Diamant
 };
 
-int can_build(int type) {
-    switch (type) {
-        case 0: return inventory.cuivre >= 2;
-        case 1: return inventory.argent >= 2;
-        case 2: return inventory.diamant >= 2;
-        case 3: return inventory.cuivre >= 2 && inventory.argent >= 2 && inventory.diamant >= 2;
+int has_built_factory(int type) {
+    for (int i = 0; i < factory_count; ++i) {
+        if (factories[i].type == type) return 1;
     }
     return 0;
 }
+
+int can_build(int type) {
+    switch (type) {
+        case 0: // Usine Cuivre
+            return inventory.cuivre >= 2;
+        case 1: // Usine Argent
+            return inventory.argent >= 2;
+        case 2: // Usine Diamant
+            return inventory.diamant >= 2;
+        case 3: // Usine Avancée
+            return inventory.cuivre >= 2 && inventory.argent >= 2 && inventory.diamant >= 2
+                   && has_built_factory(0)  // Usine Cuivre présente
+                   && has_built_factory(1)  // Usine Argent présente
+                   && has_built_factory(2); // Usine Diamant présente
+    }
+    return 0;
+}
+
 
 void add_factory(int type, Terrain terrains[NB_ROWS][NB_COLS]) {
     if (!can_build(type)) {
