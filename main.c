@@ -6,6 +6,8 @@
 #include "materials.h"
 #include "terrain.h"
 #include "pathfinding.h"
+#include "factory.h"
+
 
 #define SCREEN_WIDTH 1000
 #define SCREEN_HEIGHT 800
@@ -116,12 +118,15 @@ int main(int argc, char* argv[]) {
                 for (int i = 0; i < 4; ++i) {
                     if (mx >= buttons[i].x && mx <= buttons[i].x + buttons[i].w &&
                         my >= buttons[i].y && my <= buttons[i].y + buttons[i].h) {
-                        printf("Bouton %s cliqué !\n", button_labels[i]);
+
+                        // Appel de la construction
+                        add_factory(i, terrains);
                     }
                 }
 
-                handle_click(mx, my); // Si tu veux garder la gestion de clic sur la grille
+                handle_click(mx, my); // Pour les clics sur la grille
             }
+
         }
 
         move_train(&train);
@@ -134,6 +139,7 @@ int main(int argc, char* argv[]) {
         draw_materials(renderer, materials, MAX_MATERIALS, CELL_SIZE);
         draw_train(renderer, &train, CELL_SIZE);
         draw_inventory(renderer, &inventory, SCREEN_WIDTH, SCREEN_HEIGHT);
+        render_factories(renderer);
 
         // Affichage des boutons
         for (int i = 0; i < 4; ++i) {
