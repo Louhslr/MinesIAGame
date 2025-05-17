@@ -2,6 +2,7 @@
 #include "materials.h"
 #include <SDL.h>
 #include <stdio.h>
+#include <time.h>
 
 extern Inventory inventory;
 Factory factories[MAX_FACTORIES];
@@ -33,30 +34,43 @@ void add_factory(int type, Terrain terrains[NB_ROWS][NB_COLS]) {
 
     if (factory_count >= MAX_FACTORIES) return;
 
-    // Trouver une case d'herbe libre
-    for (int row = 0; row < NB_ROWS; ++row) {
-        for (int col = 0; col < NB_COLS; ++col) {
-            if (terrains[row][col] == HERBE) {
-                factories[factory_count].row = row;
-                factories[factory_count].col = col;
-                factories[factory_count].type = type;
-                factory_count++;
+    int attempts = 0;
+    while (attempts < 1000) {  // Limite pour éviter une boucle infinie
+        int row = rand() % NB_ROWS;
+        int col = rand() % NB_COLS;
 
-                // Déduire les ressources
-                if (type == 0) inventory.cuivre -= 2;
-                if (type == 1) inventory.argent -= 2;
-                if (type == 2) inventory.diamant -= 2;
-                if (type == 3) {
-                    inventory.cuivre -= 2;
-                    inventory.argent -= 2;
-                    inventory.diamant -= 2;
-                }
-
-                printf("Usine construite !\n");
-                return;
+        int occupied = 0;
+        for (int i = 0; i < factory_count; ++i) {
+            if (factories[i].row == row && factories[i].col == col) {
+                occupied = 1;
+                break;
             }
         }
+
+        if (terrains[row][col] == HERBE && !occupied) {
+            factories[factory_count].row = row;
+            factories[factory_count].col = col;
+            factories[factory_count].type = type;
+            factory_count++;
+
+            // Déduire les ressources
+            if (type == 0) inventory.cuivre -= 2;
+            if (type == 1) inventory.argent -= 2;
+            if (type == 2) inventory.diamant -= 2;
+            if (type == 3) {
+                inventory.cuivre -= 2;
+                inventory.argent -= 2;
+                inventory.diamant -= 2;
+            }
+
+            printf("Usine construite !\n");
+            return;
+        }
+
+        attempts++;
     }
+
+    printf("Impossible de trouver une case libre pour l'usine.\n");
 }
 
 void render_factories(SDL_Renderer* renderer) {
