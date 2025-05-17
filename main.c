@@ -12,7 +12,12 @@
 #define NB_COLS 25
 #define NB_ROWS 20
 #define CELL_SIZE 40
+#define BUTTON_WIDTH 150
+#define BUTTON_HEIGHT 30
+#define BUTTON_MARGIN 10
 
+SDL_Rect buttons[4];
+const char* button_labels[4] = { "Usine Cuivre", "Usine Argent", "Usine Diamant", "Usine Avancée" };
 
 Train train;
 Material materials[MAX_MATERIALS];
@@ -48,20 +53,26 @@ void check_material_collection() {
             materials[i].row = -1;
             spawn_material(materials, terrains);
 
-             }
+        }
     }
 }
 
-void render_text(SDL_Renderer* renderer, TTF_Font* font, const char* text, int x, int y) {
-    SDL_Color color = {255, 255, 255, 255}; // Blanc
+void render_text_centered(SDL_Renderer* renderer, TTF_Font* font, const char* text, SDL_Rect button_rect) {
+    SDL_Color color = {255, 255, 255, 255};
     SDL_Surface* surface = TTF_RenderText_Solid(font, text, color);
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_Rect dest = {x, y, surface->w, surface->h};
+
+    // Calcul des positions pour centrer le texte
+    int text_x = button_rect.x + (button_rect.w - surface->w) / 2;
+    int text_y = button_rect.y + (button_rect.h - surface->h) / 2;
+
+    SDL_Rect dest = {text_x, text_y, surface->w, surface->h};
 
     SDL_RenderCopy(renderer, texture, NULL, &dest);
     SDL_FreeSurface(surface);
     SDL_DestroyTexture(texture);
 }
+
 
 
 int main(int argc, char* argv[]) {
@@ -71,7 +82,7 @@ int main(int argc, char* argv[]) {
     }
 
     SDL_Init(SDL_INIT_VIDEO);
-    TTF_Font* font = TTF_OpenFont("ARIALI 1.TTF", 24);
+    TTF_Font* font = TTF_OpenFont("ARIALI 1.TTF", 18);
     if (!font) {
         printf("Erreur chargement police : %s\n", TTF_GetError());
     }
@@ -88,10 +99,29 @@ int main(int argc, char* argv[]) {
     int running = 1;
     SDL_Event event;
 
+    for (int i = 0; i < 4; ++i) {
+        buttons[i].x = SCREEN_WIDTH - BUTTON_WIDTH - 45;  // Aligné à droite, partie noire
+        buttons[i].y = 150 + i * (BUTTON_HEIGHT + BUTTON_MARGIN);
+        buttons[i].w = BUTTON_WIDTH;
+        buttons[i].h = BUTTON_HEIGHT;
+    }
+
     while (running) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) running = 0;
-            else if (event.type == SDL_MOUSEBUTTONDOWN) handle_click(event.button.x, event.button.y);
+            else if (event.type == SDL_MOUSEBUTTONDOWN) {
+                int mx = event.button.x;
+                int my = event.button.y;
+
+                for (int i = 0; i < 4; ++i) {
+                    if (mx >= buttons[i].x && mx <= buttons[i].x + buttons[i].w &&
+                        my >= buttons[i].y && my <= buttons[i].y + buttons[i].h) {
+                        printf("Bouton %s cliqué !\n", button_labels[i]);
+                    }
+                }
+
+                handle_click(mx, my); // Si tu veux garder la gestion de clic sur la grille
+            }
         }
 
         move_train(&train);
@@ -104,6 +134,17 @@ int main(int argc, char* argv[]) {
         draw_materials(renderer, materials, MAX_MATERIALS, CELL_SIZE);
         draw_train(renderer, &train, CELL_SIZE);
         draw_inventory(renderer, &inventory, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+        // Affichage des boutons
+        for (int i = 0; i < 4; ++i) {
+            SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255); // Gris foncé
+            SDL_RenderFillRect(renderer, &buttons[i]);
+
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // Bord blanc
+            SDL_RenderDrawRect(renderer, &buttons[i]);
+
+            render_text_centered(renderer, font, button_labels[i], buttons[i]);
+        }
 
 
         SDL_RenderPresent(renderer);

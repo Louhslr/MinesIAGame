@@ -100,4 +100,3 @@ void spawn_material(Material materials[], Terrain terrains[NB_ROWS][NB_COLS]) {
 }
 
 
-
