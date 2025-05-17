@@ -75,3 +75,34 @@ void draw_inventory(SDL_Renderer* renderer, Inventory* inv, int screen_width, in
     SDL_DestroyTexture(texture);
     TTF_CloseFont(font);
 }
+
+void spawn_material(Material materials[], Terrain terrains[NB_ROWS][NB_COLS]) {
+    int attempts = 0;
+    while (attempts < 1000) {
+        int row = rand() % NB_ROWS;
+        int col = rand() % NB_COLS;
+
+        // Vérifie que la case est de l'herbe et qu'aucun matériau n'est déjà présent
+        if (terrains[row][col] == HERBE) {
+            int occupied = 0;
+            for (int i = 0; i < MAX_MATERIALS; ++i) {
+                if (materials[i].col == col && materials[i].row == row) {
+                    occupied = 1;
+                    break;
+                }
+            }
+            if (!occupied) {
+                // Trouve un emplacement libre dans le tableau des matériaux
+                for (int i = 0; i < MAX_MATERIALS; ++i) {
+                    if (materials[i].col == -1 && materials[i].row == -1) {
+                        materials[i].col = col;
+                        materials[i].row = row;
+                        materials[i].type = rand() % 3; // 0: Cuivre, 1: Argent, 2: Diamant
+                        return;
+                    }
+                }
+            }
+        }
+        attempts++;
+    }
+}

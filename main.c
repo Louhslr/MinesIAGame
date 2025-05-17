@@ -33,17 +33,22 @@ void handle_click(int x, int y) {
 void check_material_collection() {
     for (int i = 0; i < MAX_MATERIALS; ++i) {
         if (train.col == materials[i].col && train.row == materials[i].row) {
+            // Incrémente l'inventaire en fonction du type de matériau
             switch (materials[i].type) {
                 case 0: inventory.cuivre++; break;
                 case 1: inventory.argent++; break;
                 case 2: inventory.diamant++; break;
             }
-            // Supprimer le matériau de la carte après récupération
+            // Supprime le matériau de la carte
             materials[i].col = -1;
             materials[i].row = -1;
+
+            // Génère un nouveau matériau pour maintenir le total à 15
+            spawn_material(materials, terrains);
         }
     }
 }
+
 
 int main(int argc, char* argv[]) {
     if (TTF_Init() == -1) {

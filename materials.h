@@ -20,5 +20,6 @@ typedef struct {
 void init_materials(Material* materials, Terrain terrains[NB_ROWS][NB_COLS]);
 void draw_materials(SDL_Renderer* renderer, Material* materials, int count, int cell_size);
 void draw_inventory(SDL_Renderer* renderer, Inventory* inv, int screen_width, int screen_height);
+void spawn_material(Material materials[], Terrain terrains[NB_ROWS][NB_COLS]);
 
 #endif
