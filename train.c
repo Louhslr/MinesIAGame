@@ -1,16 +1,21 @@
 #include "train.h"
-#include "materials.h"  // Si Inventory est défini ici
+#include "materials.h"
 #include <SDL.h>
 
 void init_train(Train* train, Terrain terrains[NB_ROWS][NB_COLS]) {
-    do {
-        train->row = rand() % NB_ROWS;
-        train->col = rand() % NB_COLS;
-    } while (terrains[train->row][train->col] != HERBE);
-
-    train->path_length = 0;
-    train->current_step = 0;
+    while (1) {
+        int r = rand() % NB_ROWS;
+        int c = rand() % NB_COLS;
+        if (terrains[r][c] == HERBE) {  // Assure que la case soit de l'herbe et non un obstacle
+            train->row = r;
+            train->col = c;
+            train->path_length = 0;
+            train->current_step = 0;
+            break;
+        }
+    }
 }
+
 
 void draw_train(SDL_Renderer* renderer, Train* train, int cell_size) {
     int x = train->col * cell_size;

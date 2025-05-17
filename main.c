@@ -48,10 +48,7 @@ void check_material_collection() {
             materials[i].row = -1;
             spawn_material(materials, terrains);
 
-            // Affichage de l'inventaire à chaque collecte
-            printf("Inventaire - Cuivre: %d, Argent: %d, Diamant: %d\n",
-                   inventory.cuivre, inventory.argent, inventory.diamant);
-        }
+             }
     }
 }
 
@@ -84,6 +81,7 @@ int main(int argc, char* argv[]) {
 
     srand(time(NULL));
     generate_terrain(terrains);
+    create_black_zone(terrains);           // 2. Bloque les zones noires (avant d'ajouter des matériaux !)
     init_train(&train, terrains);
     init_materials(materials, terrains);
 

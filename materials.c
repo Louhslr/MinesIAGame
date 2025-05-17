@@ -6,11 +6,12 @@
 void init_materials(Material* materials, Terrain terrains[NB_ROWS][NB_COLS]) {
     int placed = 0;
     while (placed < MAX_MATERIALS) {
-        int r = rand() % NB_ROWS;
-        int c = rand() % NB_COLS;
-        if (terrains[r][c] == HERBE) {
-            materials[placed].row = r;
-            materials[placed].col = c;
+        int row = rand() % NB_ROWS;
+        int col = rand() % NB_COLS;
+
+        if (terrains[row][col] == HERBE) {  // Vérification correcte
+            materials[placed].row = row;
+            materials[placed].col = col;
             materials[placed].type = rand() % 3;  // 0: cuivre, 1: argent, 2: diamant
             placed++;
         }
@@ -31,13 +32,13 @@ void draw_materials(SDL_Renderer* renderer, Material* materials, int count, int 
 
 // Ajoute cette fonction dans materials.c
 void draw_inventory(SDL_Renderer* renderer, Inventory* inv, int screen_width, int screen_height) {
-    TTF_Font* font = TTF_OpenFont("C:/Windows/Fonts/arial.ttf", 24);
+    TTF_Font* font = TTF_OpenFont("C:/Windows/Fonts/arial.ttf", 22);
     if (!font) return;
 
     SDL_Color white = {255, 255, 255, 255};
     char buffer[50];
     int x = screen_width - 190;  // Ajuste si nécessaire
-    int y = 10;
+    int y = 40;
 
     sprintf(buffer, "Cuivre: %d", inv->cuivre);
     SDL_Surface* surface = TTF_RenderText_Solid(font, buffer, white);
@@ -74,22 +75,21 @@ void spawn_material(Material materials[], Terrain terrains[NB_ROWS][NB_COLS]) {
         int row = rand() % NB_ROWS;
         int col = rand() % NB_COLS;
 
-        // Vérifie que la case est de l'herbe et qu'aucun matériau n'est déjà présent
-        if (terrains[row][col] == HERBE) {
+        if (terrains[row][col] == HERBE) {  // Vérification correcte
             int occupied = 0;
             for (int i = 0; i < MAX_MATERIALS; ++i) {
-                if (materials[i].col == col && materials[i].row == row) {
+                if (materials[i].row == row && materials[i].col == col) {
                     occupied = 1;
                     break;
                 }
             }
+
             if (!occupied) {
-                // Trouve un emplacement libre dans le tableau des matériaux
                 for (int i = 0; i < MAX_MATERIALS; ++i) {
-                    if (materials[i].col == -1 && materials[i].row == -1) {
-                        materials[i].col = col;
+                    if (materials[i].row == -1 && materials[i].col == -1) {
                         materials[i].row = row;
-                        materials[i].type = rand() % 3; // 0: Cuivre, 1: Argent, 2: Diamant
+                        materials[i].col = col;
+                        materials[i].type = rand() % 3; // 0: cuivre, 1: argent, 2: diamant
                         return;
                     }
                 }
@@ -98,3 +98,6 @@ void spawn_material(Material materials[], Terrain terrains[NB_ROWS][NB_COLS]) {
         attempts++;
     }
 }
+
+
+
