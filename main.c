@@ -157,8 +157,14 @@ int main(int argc, char* argv[]) {
                 for (int i = 0; i < 4; ++i) {
                     if (mx >= buttons[i].x && mx <= buttons[i].x + buttons[i].w &&
                         my >= buttons[i].y && my <= buttons[i].y + buttons[i].h) {
-                        add_factory(i, terrains);
-                        snprintf(last_action_message, sizeof(last_action_message), "%s construite !", button_labels[i]);
+
+                        // ✅ Correction ici : un seul appel à add_factory
+                        if (add_factory(i, terrains)) {
+                            snprintf(last_action_message, sizeof(last_action_message), "%s construite !", button_labels[i]);
+                        } else {
+                            snprintf(last_action_message, sizeof(last_action_message), "Pas assez de ressources pour %s.", button_labels[i]);
+                        }
+
                         button_clicked = 1;
                         break;
                     }

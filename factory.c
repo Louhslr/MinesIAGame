@@ -41,13 +41,12 @@ int can_build(int type) {
 }
 
 
-void add_factory(int type, Terrain terrains[NB_ROWS][NB_COLS]) {
+int add_factory(int type, Terrain terrains[NB_ROWS][NB_COLS]) {
     if (!can_build(type)) {
-        printf("Pas assez de ressources pour construire cette usine !\n");
-        return;
+        return 0;  // Construction impossible (pas assez de ressources ou conditions non remplies)
     }
 
-    if (factory_count >= MAX_FACTORIES) return;
+    if (factory_count >= MAX_FACTORIES) return 0;
 
     int attempts = 0;
     while (attempts < 1000) {  // Limite pour éviter une boucle infinie
@@ -79,13 +78,15 @@ void add_factory(int type, Terrain terrains[NB_ROWS][NB_COLS]) {
             }
 
             printf("Usine construite !\n");
-            return;
+            return 1;
         }
 
         attempts++;
     }
 
     printf("Impossible de trouver une case libre pour l'usine.\n");
+    return 0;  // Construction échouée (par exemple, pas de place trouvée)
+
 }
 
 void render_factories(SDL_Renderer* renderer) {

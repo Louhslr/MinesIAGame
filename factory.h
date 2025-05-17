@@ -13,7 +13,7 @@ typedef struct {
 
 #define MAX_FACTORIES 50
 
-void add_factory(int type, Terrain terrains[NB_ROWS][NB_COLS]);
+int add_factory(int type, Terrain terrains[NB_ROWS][NB_COLS]);
 void render_factories(SDL_Renderer* renderer);
 int can_build(int type);
 
