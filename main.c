@@ -26,6 +26,10 @@ Terrain terrains[NB_ROWS][NB_COLS];
 Inventory inventory = {0, 0, 0};
 char last_action_message[100] = "Cliquez sur un materiau pour commencer.";
 
+// Gestion éclair
+Uint32 last_lightning_time = 0;
+const Uint32 LIGHTNING_INTERVAL = 15000;  // 15 secondes en millisecondes
+
 void handle_click(int x, int y) {
     int col = x / CELL_SIZE;
     int row = y / CELL_SIZE;
@@ -158,7 +162,6 @@ int main(int argc, char* argv[]) {
                     if (mx >= buttons[i].x && mx <= buttons[i].x + buttons[i].w &&
                         my >= buttons[i].y && my <= buttons[i].y + buttons[i].h) {
 
-                        // ✅ Correction ici : un seul appel à add_factory
                         if (add_factory(i, terrains)) {
                             snprintf(last_action_message, sizeof(last_action_message), "%s construite !", button_labels[i]);
                         } else {
@@ -189,7 +192,6 @@ int main(int argc, char* argv[]) {
         draw_inventory(renderer, &inventory, SCREEN_WIDTH, SCREEN_HEIGHT);
         render_factories(renderer);
 
-        // Affichage des boutons
         for (int i = 0; i < 4; ++i) {
             SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
             SDL_RenderFillRect(renderer, &buttons[i]);
@@ -198,7 +200,6 @@ int main(int argc, char* argv[]) {
             render_text_centered(renderer, font, button_labels[i], buttons[i]);
         }
 
-        // Affichage du message sous les boutons
         SDL_Rect message_rect = {
                 buttons[0].x,
                 buttons[3].y + BUTTON_HEIGHT + 2 * BUTTON_MARGIN,
@@ -208,6 +209,24 @@ int main(int argc, char* argv[]) {
         render_wrapped_text(renderer, font, last_action_message, message_rect, 5);
 
         SDL_RenderPresent(renderer);
+
+        Uint32 current_time = SDL_GetTicks();
+        if (current_time - last_lightning_time >= LIGHTNING_INTERVAL) {
+            last_lightning_time = current_time;
+
+            if (inventory.cuivre > 0) inventory.cuivre--;
+            if (inventory.argent > 0) inventory.argent--;
+            if (inventory.diamant > 0) inventory.diamant--;
+
+            snprintf(last_action_message, sizeof(last_action_message),"Un eclair ! -1 de chaque ressource.");
+
+            // Flash visuel
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            SDL_RenderClear(renderer);
+            SDL_RenderPresent(renderer);
+            SDL_Delay(100);  // 100 ms de flash
+        }
+
         SDL_Delay(50);
     }
 
