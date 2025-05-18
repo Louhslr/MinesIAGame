@@ -260,8 +260,8 @@ int main(int argc, char* argv[]) {
             snprintf(timer_text, sizeof(timer_text), "Temps restant : %02d:%02d", remaining / 60, remaining % 60);
 
             SDL_Rect timer_rect = {
-                    buttons[0].x,
-                    SCREEN_HEIGHT - 40,
+                    SCREEN_WIDTH - BUTTON_WIDTH - 30,
+                    SCREEN_HEIGHT - 400,
                     BUTTON_WIDTH,
                     30
             };
