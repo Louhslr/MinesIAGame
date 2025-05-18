@@ -7,6 +7,8 @@
 #include "terrain.h"
 #include "pathfinding.h"
 #include "factory.h"
+#include "convoyeur.h"
+
 
 #define SCREEN_WIDTH 1000
 #define SCREEN_HEIGHT 800
@@ -37,6 +39,7 @@ Uint32 start_time = 0;
 
 int game_over = 0;  // 0 = en cours, 1 = gagné, -1 = perdu
 
+int show_convoyeurs = 0;  // 0 = caché, 1 = affiché
 
 void handle_click(int x, int y) {
     int col = x / CELL_SIZE;
@@ -61,6 +64,8 @@ void check_material_collection() {
             materials[i].col = -1;
             materials[i].row = -1;
             spawn_material(materials, terrains);
+            generate_convoyeurs(terrains, materials, MAX_MATERIALS, factories, factory_count);  // MAJ des convoyeurs
+
         }
     }
 }
@@ -196,6 +201,7 @@ int main(int argc, char* argv[]) {
 
                         if (add_factory(i, terrains)) {
                             snprintf(last_action_message, sizeof(last_action_message), "%s construite !", button_labels[i]);
+                            generate_convoyeurs(terrains, materials, MAX_MATERIALS, factories, factory_count);  // MAJ des convoyeurs
                         } else {
                             snprintf(last_action_message, sizeof(last_action_message), "Pas assez de ressources pour %s.", button_labels[i]);
                         }
@@ -247,6 +253,8 @@ int main(int argc, char* argv[]) {
         draw_train(renderer, &train, CELL_SIZE);
         draw_inventory(renderer, &inventory, SCREEN_WIDTH, SCREEN_HEIGHT);
         render_factories(renderer);
+        render_convoyeurs(renderer);  // Affiche les convoyeurs après les usines
+
 
         for (int i = 0; i < 4; ++i) {
             SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
@@ -287,13 +295,13 @@ int main(int argc, char* argv[]) {
         }
 
         if (built_count == 4 && game_over == 0) {
-            snprintf(last_action_message, sizeof(last_action_message), "Bravo ! Vous avez réussi !");
+            snprintf(last_action_message, sizeof(last_action_message), "Bravo ! Vous avez reussi !");
             game_over = 1;
             game_started = 0;
         }
 
         if (remaining == 0 && game_over == 0) {
-            snprintf(last_action_message, sizeof(last_action_message), "Temps écoulé !");
+            snprintf(last_action_message, sizeof(last_action_message), "Temps écoule !");
             game_over = -1;
             game_started = 0;
         }
@@ -306,7 +314,7 @@ int main(int argc, char* argv[]) {
             if (inventory.argent > 0) inventory.argent--;
             if (inventory.diamant > 0) inventory.diamant--;
 
-            snprintf(last_action_message, sizeof(last_action_message), "Un éclair ! -1 de chaque ressource.");
+            snprintf(last_action_message, sizeof(last_action_message), "Un eclair ! -1 de chaque ressource.");
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             SDL_RenderClear(renderer);
             SDL_RenderPresent(renderer);

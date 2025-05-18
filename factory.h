@@ -1,7 +1,7 @@
 #ifndef FACTORY_H
 #define FACTORY_H
 #define CELL_SIZE 40
-
+#define MAX_FACTORIES 50
 
 #include "terrain.h"
 
@@ -10,6 +10,8 @@ typedef struct {
     int col;
     int type; // 0: Cuivre, 1: Argent, 2: Diamant, 3: Avancée
 } Factory;
+extern Factory factories[MAX_FACTORIES];
+
 extern int factory_count;
 #define MAX_FACTORIES 50
 int has_built_factory(int type);
