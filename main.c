@@ -30,6 +30,9 @@ char last_action_message[100] = "Cliquez sur un materiau pour commencer.";
 Uint32 last_lightning_time = 0;
 const Uint32 LIGHTNING_INTERVAL = 15000;  // 15 secondes en millisecondes
 
+int game_started = 0;
+SDL_Rect start_button = { (SCREEN_WIDTH - 300) / 2, (SCREEN_HEIGHT - 80) / 2, 300, 80 };
+
 void handle_click(int x, int y) {
     int col = x / CELL_SIZE;
     int row = y / CELL_SIZE;
@@ -156,6 +159,21 @@ int main(int argc, char* argv[]) {
             else if (event.type == SDL_MOUSEBUTTONDOWN) {
                 int mx = event.button.x;
                 int my = event.button.y;
+                if (!game_started) {
+                    if (mx >= start_button.x && mx <= start_button.x + start_button.w &&
+                        my >= start_button.y && my <= start_button.y + start_button.h) {
+
+                        game_started = 1;  // Démarre la partie
+                        snprintf(last_action_message, sizeof(last_action_message), "Partie commencee !");
+
+                        // Tu peux ici réinitialiser le jeu si besoin :
+                        generate_terrain(terrains);
+                        create_black_zone(terrains);
+                        init_train(&train, terrains);
+                        init_materials(materials, terrains);
+                    }
+                    continue; // Ignore le reste tant que la partie n'est pas lancée
+                }
 
                 int button_clicked = 0;
                 for (int i = 0; i < 4; ++i) {
@@ -185,6 +203,18 @@ int main(int argc, char* argv[]) {
 
         SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
         SDL_RenderClear(renderer);
+
+        if (!game_started) {
+            SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
+            SDL_RenderFillRect(renderer, &start_button);
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            SDL_RenderDrawRect(renderer, &start_button);
+            render_text_centered(renderer, font, "Lancer la Partie", start_button);
+
+            SDL_RenderPresent(renderer);
+            continue; // Ne dessine rien d'autre tant que le jeu n'a pas démarré
+        }
+
 
         draw_terrain(renderer, terrains, CELL_SIZE, &inventory);
         draw_materials(renderer, materials, MAX_MATERIALS, CELL_SIZE);
