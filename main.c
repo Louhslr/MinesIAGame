@@ -210,6 +210,17 @@ int main(int argc, char* argv[]) {
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             SDL_RenderDrawRect(renderer, &start_button);
             render_text_centered(renderer, font, "Lancer la Partie", start_button);
+            SDL_Rect instruction_rect = {
+                    start_button.x,
+                    start_button.y + start_button.h + 20,
+                    start_button.w,
+                    100
+            };
+
+            render_wrapped_text(renderer, font,
+                                "Objectif : Construisez les 4 usines en moins d'une minute !"
+                                "Cliquez sur les ressources et construisez vite avant la fin du temps.",
+                                instruction_rect, 5);
 
             SDL_RenderPresent(renderer);
             continue; // Ne dessine rien d'autre tant que le jeu n'a pas démarré
