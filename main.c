@@ -35,6 +35,9 @@ SDL_Rect start_button = { (SCREEN_WIDTH - 300) / 2, (SCREEN_HEIGHT - 80) / 2, 30
 
 Uint32 start_time = 0;
 
+int game_over = 0;  // 0 = en cours, 1 = gagné, -1 = perdu
+
+
 void handle_click(int x, int y) {
     int col = x / CELL_SIZE;
     int row = y / CELL_SIZE;
@@ -166,16 +169,25 @@ int main(int argc, char* argv[]) {
                     if (mx >= start_button.x && mx <= start_button.x + start_button.w &&
                         my >= start_button.y && my <= start_button.y + start_button.h) {
 
+                        // Reset de la partie
                         game_started = 1;
+                        game_over = 0;
                         start_time = SDL_GetTicks();
-                        snprintf(last_action_message, sizeof(last_action_message), "Partie commencee !");
+                        inventory.cuivre = 0;
+                        inventory.argent = 0;
+                        inventory.diamant = 0;
+                        factory_count = 0;  // Remet à zéro le nombre d'usines construites
                         generate_terrain(terrains);
                         create_black_zone(terrains);
                         init_train(&train, terrains);
                         init_materials(materials, terrains);
+                        snprintf(last_action_message, sizeof(last_action_message), "Partie commencee !");
+
                     }
                     continue;
                 }
+
+                if (game_over != 0) continue;
 
                 int button_clicked = 0;
                 for (int i = 0; i < 4; ++i) {
@@ -206,19 +218,21 @@ int main(int argc, char* argv[]) {
         SDL_RenderClear(renderer);
 
         if (!game_started) {
+            if (game_over == -1) {
+                SDL_Rect msg_rect = { start_button.x, start_button.y - 60, start_button.w, 40 };
+                render_text_centered(renderer, font, "GAME OVER", msg_rect);
+            } else if (game_over == 1) {
+                SDL_Rect msg_rect = { start_button.x, start_button.y - 60, start_button.w, 40 };
+                render_text_centered(renderer, font, "BRAVO ! VOUS AVEZ REUSSI", msg_rect);
+            }
+
             SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
             SDL_RenderFillRect(renderer, &start_button);
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             SDL_RenderDrawRect(renderer, &start_button);
-            render_text_centered(renderer, font, "Lancer la Partie", start_button);
+            render_text_centered(renderer, font, "Lancer la partie", start_button);
 
-            SDL_Rect instruction_rect = {
-                    start_button.x,
-                    start_button.y + start_button.h + 20,
-                    start_button.w,
-                    100
-            };
-
+            SDL_Rect instruction_rect = { start_button.x, start_button.y + start_button.h + 20, start_button.w, 100 };
             render_wrapped_text(renderer, font,
                                 "Objectif : Construisez les 4 usines en moins d'une minute ! "
                                 "Cliquez sur les ressources et construisez vite avant la fin du temps.",
@@ -250,42 +264,49 @@ int main(int argc, char* argv[]) {
         };
         render_wrapped_text(renderer, font, last_action_message, message_rect, 5);
 
-        // ⏰ Timer affiché en bas à gauche
-        if (game_started) {
-            Uint32 current_time = SDL_GetTicks();
-            Uint32 elapsed = (current_time - start_time) / 1000;
-            Uint32 remaining = (60 > elapsed) ? 60 - elapsed : 0;
+        // Gestion du timer et victoire/défaite
+        Uint32 current_time = SDL_GetTicks();
+        Uint32 elapsed = (current_time - start_time) / 1000;
+        Uint32 remaining = (60 > elapsed) ? 60 - elapsed : 0;
 
-            char timer_text[50];
-            snprintf(timer_text, sizeof(timer_text), "Temps restant : %02d:%02d", remaining / 60, remaining % 60);
+        char timer_text[50];
+        snprintf(timer_text, sizeof(timer_text), "Temps restant : %02d:%02d", remaining / 60, remaining % 60);
 
-            SDL_Rect timer_rect = {
-                    SCREEN_WIDTH - BUTTON_WIDTH - 30,
-                    SCREEN_HEIGHT - 400,
-                    BUTTON_WIDTH,
-                    30
-            };
+        SDL_Rect timer_rect = {
+                SCREEN_WIDTH - BUTTON_WIDTH - 30,
+                SCREEN_HEIGHT - 400,
+                BUTTON_WIDTH,
+                30
+        };
+        render_text_centered(renderer, font, timer_text, timer_rect);
 
-            render_text_centered(renderer, font, timer_text, timer_rect);
+        // Vérification des 4 usines construites
+        int built_count = 0;
+        for (int i = 0; i < 4; ++i) {
+            if (has_built_factory(i)) built_count++;
+        }
 
-            if (remaining == 0) {
-                snprintf(last_action_message, sizeof(last_action_message), "Temps écoulé !");
-                game_started = 0;
-            }
+        if (built_count == 4 && game_over == 0) {
+            snprintf(last_action_message, sizeof(last_action_message), "Bravo ! Vous avez réussi !");
+            game_over = 1;
+            game_started = 0;
+        }
+
+        if (remaining == 0 && game_over == 0) {
+            snprintf(last_action_message, sizeof(last_action_message), "Temps écoulé !");
+            game_over = -1;
+            game_started = 0;
         }
 
         SDL_RenderPresent(renderer);
 
-        Uint32 current_time = SDL_GetTicks();
         if (current_time - last_lightning_time >= LIGHTNING_INTERVAL) {
             last_lightning_time = current_time;
-
             if (inventory.cuivre > 0) inventory.cuivre--;
             if (inventory.argent > 0) inventory.argent--;
             if (inventory.diamant > 0) inventory.diamant--;
 
-            snprintf(last_action_message, sizeof(last_action_message), "Un eclair ! -1 de chaque ressource.");
-
+            snprintf(last_action_message, sizeof(last_action_message), "Un éclair ! -1 de chaque ressource.");
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             SDL_RenderClear(renderer);
             SDL_RenderPresent(renderer);
@@ -302,4 +323,3 @@ int main(int argc, char* argv[]) {
     SDL_Quit();
     return 0;
 }
-

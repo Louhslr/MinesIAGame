@@ -18,10 +18,13 @@ int dependencies[4][4] = {
 
 int has_built_factory(int type) {
     for (int i = 0; i < factory_count; ++i) {
-        if (factories[i].type == type) return 1;
+        if (factories[i].type == type) {
+            return 1;  // Usine du type trouvé
+        }
     }
-    return 0;
+    return 0;  // Usine du type non trouvée
 }
+
 
 int can_build(int type) {
     switch (type) {
