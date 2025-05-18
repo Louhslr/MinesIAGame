@@ -33,6 +33,8 @@ const Uint32 LIGHTNING_INTERVAL = 15000;  // 15 secondes en millisecondes
 int game_started = 0;
 SDL_Rect start_button = { (SCREEN_WIDTH - 300) / 2, (SCREEN_HEIGHT - 80) / 2, 300, 80 };
 
+Uint32 start_time = 0;
+
 void handle_click(int x, int y) {
     int col = x / CELL_SIZE;
     int row = y / CELL_SIZE;
@@ -159,20 +161,20 @@ int main(int argc, char* argv[]) {
             else if (event.type == SDL_MOUSEBUTTONDOWN) {
                 int mx = event.button.x;
                 int my = event.button.y;
+
                 if (!game_started) {
                     if (mx >= start_button.x && mx <= start_button.x + start_button.w &&
                         my >= start_button.y && my <= start_button.y + start_button.h) {
 
-                        game_started = 1;  // Démarre la partie
+                        game_started = 1;
+                        start_time = SDL_GetTicks();
                         snprintf(last_action_message, sizeof(last_action_message), "Partie commencee !");
-
-                        // Tu peux ici réinitialiser le jeu si besoin :
                         generate_terrain(terrains);
                         create_black_zone(terrains);
                         init_train(&train, terrains);
                         init_materials(materials, terrains);
                     }
-                    continue; // Ignore le reste tant que la partie n'est pas lancée
+                    continue;
                 }
 
                 int button_clicked = 0;
@@ -185,7 +187,6 @@ int main(int argc, char* argv[]) {
                         } else {
                             snprintf(last_action_message, sizeof(last_action_message), "Pas assez de ressources pour %s.", button_labels[i]);
                         }
-
                         button_clicked = 1;
                         break;
                     }
@@ -210,6 +211,7 @@ int main(int argc, char* argv[]) {
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             SDL_RenderDrawRect(renderer, &start_button);
             render_text_centered(renderer, font, "Lancer la Partie", start_button);
+
             SDL_Rect instruction_rect = {
                     start_button.x,
                     start_button.y + start_button.h + 20,
@@ -218,14 +220,13 @@ int main(int argc, char* argv[]) {
             };
 
             render_wrapped_text(renderer, font,
-                                "Objectif : Construisez les 4 usines en moins d'une minute !"
+                                "Objectif : Construisez les 4 usines en moins d'une minute ! "
                                 "Cliquez sur les ressources et construisez vite avant la fin du temps.",
                                 instruction_rect, 5);
 
             SDL_RenderPresent(renderer);
-            continue; // Ne dessine rien d'autre tant que le jeu n'a pas démarré
+            continue;
         }
-
 
         draw_terrain(renderer, terrains, CELL_SIZE, &inventory);
         draw_materials(renderer, materials, MAX_MATERIALS, CELL_SIZE);
@@ -249,6 +250,30 @@ int main(int argc, char* argv[]) {
         };
         render_wrapped_text(renderer, font, last_action_message, message_rect, 5);
 
+        // ⏰ Timer affiché en bas à gauche
+        if (game_started) {
+            Uint32 current_time = SDL_GetTicks();
+            Uint32 elapsed = (current_time - start_time) / 1000;
+            Uint32 remaining = (60 > elapsed) ? 60 - elapsed : 0;
+
+            char timer_text[50];
+            snprintf(timer_text, sizeof(timer_text), "Temps restant : %02d:%02d", remaining / 60, remaining % 60);
+
+            SDL_Rect timer_rect = {
+                    buttons[0].x,
+                    SCREEN_HEIGHT - 40,
+                    BUTTON_WIDTH,
+                    30
+            };
+
+            render_text_centered(renderer, font, timer_text, timer_rect);
+
+            if (remaining == 0) {
+                snprintf(last_action_message, sizeof(last_action_message), "Temps écoulé !");
+                game_started = 0;
+            }
+        }
+
         SDL_RenderPresent(renderer);
 
         Uint32 current_time = SDL_GetTicks();
@@ -259,13 +284,12 @@ int main(int argc, char* argv[]) {
             if (inventory.argent > 0) inventory.argent--;
             if (inventory.diamant > 0) inventory.diamant--;
 
-            snprintf(last_action_message, sizeof(last_action_message),"Un eclair ! -1 de chaque ressource.");
+            snprintf(last_action_message, sizeof(last_action_message), "Un eclair ! -1 de chaque ressource.");
 
-            // Flash visuel
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             SDL_RenderClear(renderer);
             SDL_RenderPresent(renderer);
-            SDL_Delay(100);  // 100 ms de flash
+            SDL_Delay(100);
         }
 
         SDL_Delay(50);
@@ -278,3 +302,4 @@ int main(int argc, char* argv[]) {
     SDL_Quit();
     return 0;
 }
+
